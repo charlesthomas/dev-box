@@ -1,0 +1,53 @@
+name: Build and Publish Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set UPSTREAM_VERSION from file
+        run: |
+          echo "UPSTREAM_VERSION=$(cat UPSTREAM_VERSION)" >> "$GITHUB_ENV"
+      - name: svu
+        id: svu
+        uses: obfu5c8/action-svu@v1
+        with:
+          force-increment: true
+          suffix: ${{ env.UPSTREAM_VERSION }}
+      - name: tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${{ steps.svu.outputs.version }}`,
+              sha: context.sha
+            })
+      - name: registry auth
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: image metadata
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: build & push image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          build-args: UPSTREAM_VERSION=${{ env.UPSTREAM_VERSION }}
+          context: .
+          push: true
+          tags: ghcr.io/charlesthomas/dev-box:${{ steps.svu.outputs.version }}
+          labels: ${{ steps.meta.outputs.labels }}
