@@ -1,4 +1,4 @@
-ARG UPSTREAM_VERSION=4.20.1
+ARG UPSTREAM_VERSION=4.21.1
 FROM codercom/code-server:${UPSTREAM_VERSION}
 
 RUN sudo apt-get update \
