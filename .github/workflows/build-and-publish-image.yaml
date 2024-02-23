@@ -23,11 +23,12 @@ jobs:
           echo "UPSTREAM_VERSION=$(cat UPSTREAM_VERSION)" >> "$GITHUB_ENV"
 
       - name: svu
-        id: svu
-        uses: obfu5c8/action-svu@v1
-        with:
-          force-increment: true
-          suffix: ${{ env.UPSTREAM_VERSION }}
+        run: |
+          curl -sLO https://github.com/caarlos0/svu/releases/download/v1.12.0/svu_1.12.0_linux_amd64.tar.gz
+          tar -zxf svu_1.12.0_linux_amd64.tar.gz
+          SVU_NEXT=$(./svu next --force-patch-increment --build=${{ env.UPSTREAM_VERSION }})
+          echo SVU_NEXT=${SVU_NEXT}
+          echo "SVU_NEXT=${SVU_NEXT}" >> $GITHUB_ENV
 
       - name: tag
         uses: actions/github-script@v6
@@ -36,7 +37,7 @@ jobs:
             github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: `refs/tags/${{ steps.svu.outputs.version }}`,
+              ref: `refs/tags/${{ env.SVU_NEXT }}`,
               sha: context.sha
             })
 
@@ -60,7 +61,7 @@ jobs:
             latest=true
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,enable=true,value=${{ steps.svu.outputs.version }}
+            type=raw,enable=true,value=${{ env.SVU_NEXT }}
 
       - name: build & push image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
