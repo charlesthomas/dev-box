@@ -7,7 +7,7 @@ USER root
 
 # apt tools
 RUN apt-get update \
- && apt-get install --no-install-recommends --yes \
+ && apt-get install --no-install-suggests --no-install-recommends --yes \
     fzf \
     jsonnet \
     make \
@@ -21,14 +21,9 @@ RUN apt-get update \
  && apt-get clean
 
 # bw
-ARG BW_VERSION=2024.2.0
-RUN apt-get install --no-install-recommends --yes unzip \
- && curl -sLO https://github.com/bitwarden/clients/releases/download/cli-v${BW_VERSION}/bw-linux-${BW_VERSION}.zip \
- && unzip bw-linux-${BW_VERSION}.zip \
- && chmod +x bw \
- && mv bw /usr/local/bin/bw \
- && rm -rfv *.zip
-
+RUN apt-get install --no-install-suggests --no-install-recommends --yes build-essential npm \
+ && npm install -g @bitwarden/cli \
+ && apt-get clean
 
 # kubectl && helm
 ARG KUBECTL_VERSION=v1.29.2
@@ -36,10 +31,7 @@ RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/${TARGETPLATFORM}/kub
  && mv kubectl /usr/local/bin/ \
  && curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-ARG USER=crthomas
-RUN useradd -m ${USER} -s /bin/bash
-
-USER ${USER}
+USER 1000
 
 RUN curl -sS https://webi.sh/bat | sh \
  && curl -sS https://webi.sh/delta | sh \
@@ -52,7 +44,6 @@ RUN curl -sS https://webi.sh/bat | sh \
  && curl -sS https://webi.sh/yq | sh \
  && ln -s ~/.local/opt/go/bin/go ~/.local/bin/go \
  && rm ~/.bashrc ~/go
-
 
 # work
 ARG JB_VERSION=v0.5.1
