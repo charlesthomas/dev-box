@@ -27,8 +27,9 @@ RUN apt-get install --no-install-suggests --no-install-recommends --yes build-es
 
 # kubectl && helm
 ARG KUBECTL_VERSION=v1.29.2
-RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/${TARGETPLATFORM}/kubectl" \
+RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/${TARGETPLATFORM}/kubectl" \
  && mv kubectl /usr/local/bin/ \
+ && chmod +x /usr/local/bin/kubectl \
  && curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 USER 1000
