@@ -5,6 +5,10 @@ VERSION=${VERSION:-latest}
 
 UUID=${UUID:-$(uuid -v4)}
 
+if [[ "${VERSION}" == "latest" ]]; then
+    docker pull ghcr.io/charlesthomas/dev-box:latest
+fi
+
 PASSWORD=$UUID \
 docker run \
 --rm \
