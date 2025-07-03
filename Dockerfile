@@ -30,14 +30,14 @@ RUN apt-get update \
 COPY --from=bw /usr/local/bin/bw /usr/local/bin/
 
 # go
-ARG GO_VERSION=1.22.0
+ARG GO_VERSION
 RUN curl -sLO "https://go.dev/dl/go${GO_VERSION}.${TARGETOS}-${TARGETARCH}.tar.gz" \
  && sudo tar -C /usr/local -xzf "go${GO_VERSION}.${TARGETOS}-${TARGETARCH}.tar.gz" \
  && sudo ln -s /usr/local/go/bin/go /usr/local/bin/go \
  && rm "go${GO_VERSION}.${TARGETOS}-${TARGETARCH}.tar.gz"
 
 # kubectl && helm
-ARG KUBECTL_VERSION=v1.29.2
+ARG KUBECTL_VERSION
 RUN curl -sLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/${TARGETPLATFORM}/kubectl" \
  && mv kubectl /usr/local/bin/ \
  && chmod +x /usr/local/bin/kubectl \
@@ -57,8 +57,8 @@ RUN curl -sS https://webi.sh/bat | sh \
  && rm -rf ~/.local/
 
 # work
-ARG JB_VERSION=v0.5.1
-ARG KUBECFG_VERSION=v0.34.3
+ARG JB_VERSION
+ARG KUBECFG_VERSION
 RUN GOPATH=~/.go go install github.com/kubecfg/kubecfg@${KUBECFG_VERSION} \
  && GOPATH=~/.go go install -a github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@${JB_VERSION} \
  && mkdir -p ~/bin \
