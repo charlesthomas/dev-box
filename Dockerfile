@@ -1,5 +1,9 @@
-ARG UPSTREAM_VERSION=4.101.2
-FROM codercom/code-server:${UPSTREAM_VERSION}
+ARG BW_VERSION
+ARG CODE_SERVER_VERSION
+
+FROM ghcr.io/charlesthomas/bitwarden-cli:${BW_VERSION} AS bw
+
+FROM codercom/code-server:${CODE_SERVER_VERSION}
 
 ARG TARGETARCH
 ARG TARGETOS
@@ -23,9 +27,7 @@ RUN apt-get update \
  && apt-get clean
 
 # bw
-RUN apt-get install --no-install-suggests --no-install-recommends --yes build-essential npm \
- && npm install -g @bitwarden/cli \
- && apt-get clean
+COPY --from=bw /usr/local/bin/bw /usr/local/bin/
 
 # go
 ARG GO_VERSION=1.22.0
