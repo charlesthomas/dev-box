@@ -43,6 +43,9 @@ RUN curl -sLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/${TARGETPLATFORM
  && chmod +x /usr/local/bin/kubectl \
  && curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
+# tailscale
+RUN curl -fsSL https://tailscale.com/install.sh | sh
+
 USER 1000
 
 RUN curl -sS https://webi.sh/bat | sh \
